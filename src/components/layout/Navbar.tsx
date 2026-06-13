@@ -9,7 +9,8 @@ const navItems = [
   { href: '/portfolio', label: 'Portfolio', icon: '◈' },
   { href: '/market', label: 'Market', icon: '◉' },
   { href: '/watchlist', label: 'Watchlist', icon: '★' },
-  { href: '/transactions', label: 'Transactions', icon: '⇄' },
+  { href: '/transactions', label: 'History', icon: '⇄' },
+  { href: '/settings', label: 'Settings', icon: '⚙' },
 ];
 
 export function Navbar() {

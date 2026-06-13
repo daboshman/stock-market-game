@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import { getFirebaseAuth } from '@/lib/firebase/client';
+import { signOut } from '@/lib/firebase/auth';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -52,6 +53,17 @@ export function SettingsView() {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
+
+  async function handleSignOut() {
+    setSigningOut(true);
+    try {
+      await signOut();
+      router.push('/');
+    } finally {
+      setSigningOut(false);
+    }
+  }
 
   async function handleReset() {
     setIsPending(true);
@@ -119,6 +131,15 @@ export function SettingsView() {
           </div>
         </Card>
       )}
+
+      {/* Sign Out — visible on mobile where the sidebar sign-out button isn't shown */}
+      <Card padding="md" className="mb-4 md:hidden">
+        <h2 className="text-sm font-semibold text-white mb-1">Sign Out</h2>
+        <p className="text-xs text-gray-400 mb-4">Sign out of your Google account.</p>
+        <Button variant="secondary" size="sm" onClick={handleSignOut} disabled={signingOut}>
+          {signingOut ? 'Signing out…' : 'Sign Out'}
+        </Button>
+      </Card>
 
       {/* Danger zone */}
       <Card padding="md" className="border-red-500/20">
