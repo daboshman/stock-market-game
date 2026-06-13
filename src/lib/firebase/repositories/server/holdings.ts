@@ -1,4 +1,3 @@
-import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '../../admin';
 import { Holding } from '@/types/portfolio';
 

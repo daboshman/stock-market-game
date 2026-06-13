@@ -3,8 +3,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { StockQuote } from '@/types/market';
 
+export type StockQuoteWithMeta = StockQuote & { cachedAt: number };
+
 export function useStockQuote(symbol: string | null) {
-  return useQuery<StockQuote>({
+  return useQuery<StockQuoteWithMeta>({
     queryKey: ['quote', symbol],
     queryFn: async () => {
       const res = await fetch(`/api/market/quote/${symbol}`);
