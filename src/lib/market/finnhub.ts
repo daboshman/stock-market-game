@@ -1,5 +1,6 @@
 import { MarketDataProvider } from './provider';
 import { StockQuote, StockSearchResult, HistoryPoint, HistoryRange } from '@/types/market';
+import { fetchPolygonHistory } from './polygon';
 
 const BASE = 'https://finnhub.io/api/v1';
 
@@ -16,19 +17,6 @@ async function get<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-function rangeParams(range: HistoryRange): { from: number; resolution: string } {
-  const now = Math.floor(Date.now() / 1000);
-  const d = 86400;
-  switch (range) {
-    case '1d':  return { from: now - d,          resolution: '60' };
-    case '5d':  return { from: now - 5 * d,      resolution: '60' };
-    case '1mo': return { from: now - 30 * d,     resolution: 'D'  };
-    case '3mo': return { from: now - 90 * d,     resolution: 'D'  };
-    case '6mo': return { from: now - 180 * d,    resolution: 'D'  };
-    case '1y':  return { from: now - 365 * d,    resolution: 'D'  };
-    case '5y':  return { from: now - 5 * 365 * d, resolution: 'W' };
-  }
-}
 
 export class FinnhubProvider implements MarketDataProvider {
   async search(query: string): Promise<StockSearchResult[]> {
@@ -71,24 +59,7 @@ export class FinnhubProvider implements MarketDataProvider {
   }
 
   async getHistory(symbol: string, range: HistoryRange): Promise<HistoryPoint[]> {
-    const now = Math.floor(Date.now() / 1000);
-    const { from, resolution } = rangeParams(range);
-
-    const data = await get<{
-      s: string;
-      t: number[]; o: number[]; h: number[];
-      l: number[]; c: number[]; v: number[];
-    }>(`/stock/candle?symbol=${encodeURIComponent(symbol)}&resolution=${resolution}&from=${from}&to=${now}`);
-
-    if (data.s !== 'ok' || !data.t?.length) return [];
-
-    return data.t.map((ts, i) => ({
-      date: new Date(ts * 1000).toISOString().split('T')[0],
-      open:   data.o[i] ?? 0,
-      high:   data.h[i] ?? 0,
-      low:    data.l[i] ?? 0,
-      close:  data.c[i] ?? 0,
-      volume: data.v[i] ?? 0,
-    }));
+    // Finnhub free plan does not include /stock/candle — delegate to Polygon.io
+    return fetchPolygonHistory(symbol, range);
   }
 }

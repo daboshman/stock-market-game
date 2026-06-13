@@ -59,6 +59,11 @@ env:
     availability:
       - RUNTIME
 
+  - variable: POLYGON_API_KEY
+    secret: POLYGON_API_KEY
+    availability:
+      - RUNTIME
+
   # Game config
   - variable: DEFAULT_STARTING_BALANCE
     value: "100000"
