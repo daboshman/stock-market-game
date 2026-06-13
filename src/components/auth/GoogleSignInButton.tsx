@@ -1,22 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { signInWithGoogle } from '@/lib/firebase/auth';
 import { Button } from '@/components/ui/Button';
 
 export function GoogleSignInButton() {
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   async function handleSignIn() {
     setLoading(true);
     try {
       await signInWithGoogle();
-      router.push('/dashboard');
+      // Page will navigate to Google — no further action needed here
     } catch (err) {
       console.error('Sign in failed', err);
-    } finally {
       setLoading(false);
     }
   }

@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User as FirebaseUser, onAuthStateChanged } from 'firebase/auth';
 import { getFirebaseAuth } from '@/lib/firebase/client';
+import { handleRedirectResult } from '@/lib/firebase/auth';
 import { createUserIfNotExists } from '@/lib/firebase/repositories/users';
 import { createPortfolioIfNotExists } from '@/lib/firebase/repositories/portfolio';
 
@@ -18,6 +19,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Consume the redirect result (no-op if not returning from a redirect)
+    handleRedirectResult().catch(() => {});
+
     const unsubscribe = onAuthStateChanged(getFirebaseAuth(), async (firebaseUser) => {
       if (firebaseUser) {
         await createUserIfNotExists(firebaseUser.uid, {
