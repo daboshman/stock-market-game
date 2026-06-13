@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User as FirebaseUser, onAuthStateChanged } from 'firebase/auth';
 import { getFirebaseAuth } from '@/lib/firebase/client';
+import { resolveRedirectResult } from '@/lib/firebase/auth';
 import { createUserIfNotExists } from '@/lib/firebase/repositories/users';
 import { createPortfolioIfNotExists } from '@/lib/firebase/repositories/portfolio';
 
@@ -18,6 +19,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Complete any pending iOS redirect sign-in. Must run before the
+    // onAuthStateChanged listener is reliable for the redirect flow.
+    resolveRedirectResult();
+
     const unsubscribe = onAuthStateChanged(getFirebaseAuth(), async (firebaseUser) => {
       if (firebaseUser) {
         await createUserIfNotExists(firebaseUser.uid, {
