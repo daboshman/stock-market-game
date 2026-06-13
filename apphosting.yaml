@@ -8,7 +8,7 @@ runConfig:
 env:
   # Client-side Firebase config (public values, baked into JS bundle at build time)
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
-    secret: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: "AIzaSyBZ9v4DaxvsKz1m_Pv3JLIoFvYtBBwDHyc"
     availability:
       - BUILD
 
