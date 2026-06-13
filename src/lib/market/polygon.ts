@@ -1,4 +1,4 @@
-import { HistoryPoint, HistoryRange } from '@/types/market';
+import { HistoryPoint, HistoryRange, StockSearchResult } from '@/types/market';
 
 const BASE = 'https://api.polygon.io';
 
@@ -53,4 +53,29 @@ export async function fetchPolygonHistory(symbol: string, range: HistoryRange): 
     close:  r.c,
     volume: r.v,
   }));
+}
+
+type PolygonTicker = {
+  ticker: string;
+  name: string;
+  type: string;
+  market: string;
+};
+
+// CS = Common Stock, ETF = ETF, ADRC = US-listed ADR (foreign company on US exchange)
+const ALLOWED_TYPES = new Set(['CS', 'ETF', 'ADRC']);
+
+export async function fetchPolygonSearch(query: string): Promise<StockSearchResult[]> {
+  const data = await get<{ results?: PolygonTicker[] }>(
+    `/v3/reference/tickers?search=${encodeURIComponent(query)}&active=true&market=stocks&locale=us&limit=10`
+  );
+
+  return (data.results ?? [])
+    .filter((r) => ALLOWED_TYPES.has(r.type))
+    .map((r) => ({
+      symbol: r.ticker,
+      name: r.name,
+      exchange: '',
+      type: r.type === 'ETF' ? 'ETF' : 'EQUITY',
+    }));
 }

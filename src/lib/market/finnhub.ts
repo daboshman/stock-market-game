@@ -1,6 +1,6 @@
 import { MarketDataProvider } from './provider';
 import { StockQuote, StockSearchResult, HistoryPoint, HistoryRange } from '@/types/market';
-import { fetchPolygonHistory } from './polygon';
+import { fetchPolygonHistory, fetchPolygonSearch } from './polygon';
 
 const BASE = 'https://finnhub.io/api/v1';
 
@@ -20,19 +20,9 @@ async function get<T>(path: string): Promise<T> {
 
 export class FinnhubProvider implements MarketDataProvider {
   async search(query: string): Promise<StockSearchResult[]> {
-    const data = await get<{
-      result: Array<{ symbol: string; description: string; type: string }>;
-    }>(`/search?q=${encodeURIComponent(query)}`);
-
-    return (data.result ?? [])
-      .filter((r) => r.type === 'Common Stock' || r.type === 'ETP')
-      .slice(0, 10)
-      .map((r) => ({
-        symbol: r.symbol,
-        name: r.description,
-        exchange: '',
-        type: r.type === 'ETP' ? 'ETF' : 'EQUITY',
-      }));
+    // Finnhub search returns international markets (e.g. TEVA.TA) mixed with US stocks.
+    // Polygon filtered to locale=us gives clean US-only results including ADRs.
+    return fetchPolygonSearch(query);
   }
 
   async getQuote(symbol: string): Promise<StockQuote> {
