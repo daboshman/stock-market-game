@@ -1,6 +1,7 @@
 export interface Portfolio {
   cashBalance: number;
   totalInvested: number;
+  startingBalance: number;
   createdAt: Date;
   updatedAt: Date;
 }

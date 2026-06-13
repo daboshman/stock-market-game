@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { HoldingsTable } from './HoldingsTable';
+import { AllocationChart } from './AllocationChart';
 import { useHoldings } from '@/hooks/useHoldings';
 import { usePortfolio } from '@/hooks/usePortfolio';
 import { formatCurrency } from '@/lib/utils/format';
@@ -83,6 +84,14 @@ export function PortfolioView() {
           </div>
         )}
       </Card>
+
+      {/* Allocation chart */}
+      {!isLoading && holdings && holdings.length > 0 && (
+        <Card padding="lg" className="mt-4">
+          <h2 className="text-sm font-semibold text-white mb-4">Allocation by Cost Basis</h2>
+          <AllocationChart />
+        </Card>
+      )}
     </div>
   );
 }

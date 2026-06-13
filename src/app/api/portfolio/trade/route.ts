@@ -7,6 +7,7 @@ import { getMarketProvider } from '@/lib/market';
 export const dynamic = 'force-dynamic';
 import { executeBuy, executeSell } from '@/lib/trading/engine';
 import { TradeError } from '@/lib/trading/types';
+import { maybeWriteSnapshot } from '@/lib/trading/snapshots';
 
 const tradeSchema = z.object({
   symbol: z.string().min(1).max(10).regex(/^[A-Z0-9.\-^]+$/i),
@@ -63,6 +64,13 @@ export async function POST(request: NextRequest) {
     const result = type === 'BUY'
       ? await executeBuy(userId, upperSymbol, quantity, price)
       : await executeSell(userId, upperSymbol, quantity, price);
+
+    // Write portfolio snapshot (rate-limited to 1/min)
+    await maybeWriteSnapshot(userId, {
+      cashBalance: result.newCashBalance,
+      investedValue: result.newTotalInvested,
+      totalValue: result.newCashBalance + result.newTotalInvested,
+    });
 
     return NextResponse.json(result);
   } catch (err) {

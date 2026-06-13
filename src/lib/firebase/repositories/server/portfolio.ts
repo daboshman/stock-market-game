@@ -9,6 +9,7 @@ export async function getPortfolioServer(userId: string): Promise<Portfolio | nu
   return {
     cashBalance: data.cashBalance,
     totalInvested: data.totalInvested,
+    startingBalance: data.startingBalance ?? 100000,
     createdAt: data.createdAt?.toDate(),
     updatedAt: data.updatedAt?.toDate(),
   };
@@ -24,6 +25,7 @@ export async function createPortfolioIfNotExistsServer(userId: string) {
   await ref.set({
     cashBalance: startingBalance,
     totalInvested: 0,
+    startingBalance,
     createdAt: FieldValue.serverTimestamp(),
     updatedAt: FieldValue.serverTimestamp(),
   });

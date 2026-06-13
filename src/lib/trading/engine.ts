@@ -67,7 +67,7 @@ export async function executeBuy(
       timestamp: FieldValue.serverTimestamp(),
     });
 
-    result = { transactionId: txRef.id, newCashBalance, executionPrice: price, totalValue: totalCost };
+    result = { transactionId: txRef.id, newCashBalance, newTotalInvested, executionPrice: price, totalValue: totalCost };
   });
 
   return result;
@@ -136,7 +136,7 @@ export async function executeSell(
       timestamp: FieldValue.serverTimestamp(),
     });
 
-    result = { transactionId: txRef.id, newCashBalance, executionPrice: price, totalValue };
+    result = { transactionId: txRef.id, newCashBalance, newTotalInvested, executionPrice: price, totalValue };
   });
 
   return result;

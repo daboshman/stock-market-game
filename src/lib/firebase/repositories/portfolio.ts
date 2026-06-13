@@ -9,6 +9,7 @@ export async function getPortfolio(userId: string): Promise<Portfolio | null> {
   return {
     cashBalance: data.cashBalance,
     totalInvested: data.totalInvested,
+    startingBalance: data.startingBalance ?? 100000,
     createdAt: data.createdAt?.toDate(),
     updatedAt: data.updatedAt?.toDate(),
   };

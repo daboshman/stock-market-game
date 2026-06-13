@@ -9,6 +9,7 @@ export interface TradeRequest {
 export interface TradeResult {
   transactionId: string;
   newCashBalance: number;
+  newTotalInvested: number;
   executionPrice: number;
   totalValue: number;
 }
