@@ -65,11 +65,13 @@ export async function POST(request: NextRequest) {
       ? await executeBuy(userId, upperSymbol, quantity, price)
       : await executeSell(userId, upperSymbol, quantity, price);
 
-    // Write portfolio snapshot (rate-limited to 1/min)
-    await maybeWriteSnapshot(userId, {
+    // Snapshot is best-effort — never let it fail the trade response
+    maybeWriteSnapshot(userId, {
       cashBalance: result.newCashBalance,
       investedValue: result.newTotalInvested,
       totalValue: result.newCashBalance + result.newTotalInvested,
+    }).catch((err) => {
+      console.error('[portfolio/trade] snapshot write failed (non-critical):', err);
     });
 
     return NextResponse.json(result);
