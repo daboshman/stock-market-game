@@ -21,11 +21,12 @@ export async function createPortfolioIfNotExists(userId: string) {
   const snap = await getDoc(ref);
   if (snap.exists()) return;
 
-  const startingBalance = Number(process.env.NEXT_PUBLIC_STARTING_BALANCE ?? 100000);
+  const startingBalance = 100000;
 
   await setDoc(ref, {
     cashBalance: startingBalance,
     totalInvested: 0,
+    startingBalance,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
