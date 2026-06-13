@@ -53,6 +53,11 @@ env:
     availability:
       - RUNTIME
 
+  - variable: FINNHUB_API_KEY
+    secret: FINNHUB_API_KEY
+    availability:
+      - RUNTIME
+
   # Game config (not sensitive)
   - variable: DEFAULT_STARTING_BALANCE
     value: "100000"
