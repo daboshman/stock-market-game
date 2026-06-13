@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { getAdminAuth } from '@/lib/firebase/admin';
+import { getAdminAuth, AdminConfigError } from '@/lib/firebase/admin';
 
 import { getMarketProvider } from '@/lib/market';
 
@@ -28,7 +28,11 @@ export async function POST(request: NextRequest) {
   try {
     const decoded = await getAdminAuth().verifyIdToken(idToken);
     userId = decoded.uid;
-  } catch {
+  } catch (err) {
+    if (err instanceof AdminConfigError) {
+      console.error('[portfolio/trade] Admin SDK not configured:', err.message);
+      return NextResponse.json({ error: 'Service temporarily unavailable — check server logs' }, { status: 503 });
+    }
     return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
   }
 
