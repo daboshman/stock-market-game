@@ -1,17 +1,40 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Users can only read/write their own user document
+
+    // User profile — owner can read and write (created on first sign-in from client)
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Users can only read/write their own portfolio and all subcollections
+    // Portfolio root — owner can read and create (initial setup on first sign-in).
+    // Update/delete are server-only via Admin SDK — prevents clients inflating cashBalance.
     match /portfolios/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update, delete: if false;
 
-      match /{subcollection}/{document=**} {
+      // Holdings — read-only for owner; trade engine writes via Admin SDK
+      match /holdings/{symbol} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow write: if false;
+      }
+
+      // Transactions — read-only for owner; trade engine writes via Admin SDK
+      match /transactions/{txId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow write: if false;
+      }
+
+      // Watchlist — owner can read and write directly (no financial data, low stakes)
+      match /watchlist/{symbol} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // Snapshots — read-only for owner; written by trade engine via Admin SDK
+      match /snapshots/{snapshotId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow write: if false;
       }
     }
 
