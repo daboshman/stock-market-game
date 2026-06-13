@@ -1,12 +1,12 @@
 runConfig:
+  minInstances: 0
+  maxInstances: 2
+  concurrency: 80
   cpu: 1
   memoryMiB: 512
-  concurrency: 80
-  maxInstances: 2
-  minInstances: 0
 
 env:
-  # ---- Client-side Firebase config (baked into JS bundle at build time) ----
+  # Client-side Firebase config (baked into JS bundle at build time)
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
     value: "AIzaSyBZ9v4DaxvsKz1m_Pv3JLIoFvYtBBwDHyc"
     availability:
@@ -37,7 +37,7 @@ env:
     availability:
       - BUILD
 
-  # ---- Server-side Firebase Admin config ----
+  # Server-side Firebase Admin config
   - variable: FIREBASE_PROJECT_ID
     value: "stock-market-game-a94b2"
     availability:
@@ -48,14 +48,12 @@ env:
     availability:
       - RUNTIME
 
-  # Private key stored in Secret Manager — set it with:
-  #   firebase apphosting:secrets:set FIREBASE_PRIVATE_KEY
   - variable: FIREBASE_PRIVATE_KEY
     secret: FIREBASE_PRIVATE_KEY
     availability:
       - RUNTIME
 
-  # ---- Game config ----
+  # Game config
   - variable: DEFAULT_STARTING_BALANCE
     value: "100000"
     availability:
