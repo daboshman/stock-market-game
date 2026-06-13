@@ -14,12 +14,8 @@ export function GoogleSignInButton() {
     setLoading(true);
     setError(null);
     try {
-      const user = await signInWithGoogle();
-      if (user) {
-        // Popup flow (desktop/Android): user returned immediately
-        router.push('/dashboard');
-      }
-      // Redirect flow (iOS): browser is navigating to Google — nothing to do here
+      await signInWithGoogle();
+      router.push('/dashboard');
     } catch (err) {
       console.error('Sign in failed', err);
       setError('Sign in failed. Please try again.');
