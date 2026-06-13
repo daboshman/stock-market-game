@@ -1,12 +1,11 @@
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { initializeApp, getApps, getApp, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 
-function initAdmin() {
-  if (getApps().length > 0) return getApps()[0];
-
+// Lazy init — only called at request time inside Route Handlers, never at build time.
+function getAdminApp() {
+  if (getApps().length > 0) return getApp();
   const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
-
   return initializeApp({
     credential: cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
@@ -16,7 +15,10 @@ function initAdmin() {
   });
 }
 
-const adminApp = initAdmin();
+export function getAdminDb() {
+  return getFirestore(getAdminApp());
+}
 
-export const adminDb = getFirestore(adminApp);
-export const adminAuth = getAuth(adminApp);
+export function getAdminAuth() {
+  return getAuth(getAdminApp());
+}

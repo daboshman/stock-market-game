@@ -1,9 +1,9 @@
-import { FieldValue } from 'firebase-admin/firestore';
-import { adminDb } from '../../admin';
+﻿import { FieldValue } from 'firebase-admin/firestore';
+import { getAdminDb } from '../../admin';
 import { Portfolio } from '@/types/portfolio';
 
 export async function getPortfolioServer(userId: string): Promise<Portfolio | null> {
-  const snap = await adminDb.doc(`portfolios/${userId}`).get();
+  const snap = await getAdminDb().doc(`portfolios/${userId}`).get();
   if (!snap.exists) return null;
   const data = snap.data()!;
   return {
@@ -15,7 +15,7 @@ export async function getPortfolioServer(userId: string): Promise<Portfolio | nu
 }
 
 export async function createPortfolioIfNotExistsServer(userId: string) {
-  const ref = adminDb.doc(`portfolios/${userId}`);
+  const ref = getAdminDb().doc(`portfolios/${userId}`);
   const snap = await ref.get();
   if (snap.exists) return;
 

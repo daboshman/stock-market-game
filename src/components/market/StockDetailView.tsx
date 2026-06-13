@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useStockQuote } from '@/hooks/useStockQuote';
 import { QuoteDisplay, QuoteDisplaySkeleton } from './QuoteDisplay';
@@ -7,6 +8,8 @@ import { PriceChart } from './PriceChart';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { TradeForm } from '@/components/trading/TradeForm';
+import { TradeType } from '@/lib/trading/types';
 
 interface StockDetailViewProps {
   symbol: string;
@@ -14,6 +17,7 @@ interface StockDetailViewProps {
 
 export function StockDetailView({ symbol }: StockDetailViewProps) {
   const { data: quote, isLoading, isError, refetch } = useStockQuote(symbol);
+  const [tradeType, setTradeType] = useState<TradeType | null>(null);
 
   return (
     <div>
@@ -36,20 +40,13 @@ export function StockDetailView({ symbol }: StockDetailViewProps) {
           <div>
             <QuoteDisplay quote={quote} />
             <div className="mt-5 flex gap-3">
-              <Button size="lg" className="flex-1 sm:flex-none sm:w-36">
+              <Button size="lg" className="flex-1 sm:flex-none sm:w-36" onClick={() => setTradeType('BUY')}>
                 Buy {symbol}
               </Button>
-              <Button size="lg" variant="secondary" className="flex-1 sm:flex-none sm:w-36">
+              <Button size="lg" variant="danger" className="flex-1 sm:flex-none sm:w-36" onClick={() => setTradeType('SELL')}>
                 Sell {symbol}
               </Button>
             </div>
-            <p className="text-xs text-gray-500 mt-2">
-              Trading opens in Phase 4. Add to{' '}
-              <Link href="/watchlist" className="text-indigo-400 hover:underline">
-                watchlist
-              </Link>{' '}
-              for now.
-            </p>
           </div>
         )}
       </Card>
@@ -61,6 +58,14 @@ export function StockDetailView({ symbol }: StockDetailViewProps) {
             isPositive={!quote || quote.change >= 0}
           />
         </Card>
+      )}
+
+      {tradeType && (
+        <TradeForm
+          symbol={symbol}
+          defaultType={tradeType}
+          onClose={() => setTradeType(null)}
+        />
       )}
     </div>
   );

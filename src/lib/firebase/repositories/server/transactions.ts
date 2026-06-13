@@ -1,11 +1,11 @@
-import { adminDb } from '../../admin';
+﻿import { getAdminDb } from '../../admin';
 import { Transaction } from '@/types/portfolio';
 
 export async function getTransactionsServer(
   userId: string,
   pageSize = 20
 ): Promise<Transaction[]> {
-  const snap = await adminDb
+  const snap = await getAdminDb()
     .collection(`portfolios/${userId}/transactions`)
     .orderBy('timestamp', 'desc')
     .limit(pageSize)
