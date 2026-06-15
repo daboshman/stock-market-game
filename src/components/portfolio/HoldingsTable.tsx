@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useQueries } from '@tanstack/react-query';
 import { Holding } from '@/types/portfolio';
 import { useStockQuote } from '@/hooks/useStockQuote';
+import { StockQuoteWithMeta } from '@/hooks/useStockQuote';
 import { calculateUnrealizedPL } from '@/lib/trading/calculations';
 import { formatCurrency, formatPercent } from '@/lib/utils/format';
 import { TradeForm } from '@/components/trading/TradeForm';
@@ -82,6 +84,56 @@ function HoldingRow({ holding }: { holding: Holding }) {
   );
 }
 
+function HoldingsTotalsRow({ holdings }: { holdings: Holding[] }) {
+  const results = useQueries({
+    queries: holdings.map((h) => ({
+      queryKey: ['quote', h.symbol],
+      queryFn: async () => {
+        const res = await fetch(`/api/market/quote/${h.symbol}`);
+        if (!res.ok) throw new Error('Failed to fetch quote');
+        return res.json() as Promise<StockQuoteWithMeta>;
+      },
+      refetchInterval: 60 * 1000,
+    })),
+  });
+
+  let totalPL = 0;
+  let totalCostBasis = 0;
+  let anyLoaded = false;
+
+  for (let i = 0; i < holdings.length; i++) {
+    const price = results[i].data?.price;
+    if (!price || price <= 0) continue;
+    const { amount } = calculateUnrealizedPL(holdings[i].quantity, holdings[i].averageCost, price);
+    totalPL += amount;
+    totalCostBasis += holdings[i].quantity * holdings[i].averageCost;
+    anyLoaded = true;
+  }
+
+  if (!anyLoaded) return null;
+
+  const totalPercent = totalCostBasis > 0 ? (totalPL / totalCostBasis) * 100 : 0;
+
+  return (
+    <tr className="border-t-2 border-white/15">
+      <td colSpan={5} className="pt-3 pr-4 text-xs font-medium text-gray-500 uppercase tracking-wide text-right">
+        Total P/L
+      </td>
+      <td className="pt-3 pr-4 text-sm tabular-nums">
+        <div>
+          <span className={cn('font-semibold', totalPL >= 0 ? 'text-emerald-400' : 'text-red-400')}>
+            {totalPL >= 0 ? '+' : ''}{formatCurrency(totalPL)}
+          </span>
+          <span className={cn('ml-1 text-xs', totalPercent >= 0 ? 'text-emerald-400/70' : 'text-red-400/70')}>
+            ({formatPercent(totalPercent)})
+          </span>
+        </div>
+      </td>
+      <td />
+    </tr>
+  );
+}
+
 interface HoldingsTableProps {
   holdings: Holding[];
 }
@@ -105,6 +157,7 @@ export function HoldingsTable({ holdings }: HoldingsTableProps) {
           {holdings.map((h) => (
             <HoldingRow key={h.symbol} holding={h} />
           ))}
+          <HoldingsTotalsRow holdings={holdings} />
         </tbody>
       </table>
     </div>
